@@ -1,0 +1,10 @@
+rooms: {
+	- room name, owner, createBy - not null
+	
+}
+
+users: {
+	- provider -> not null,
+	- password -> add,
+
+}
