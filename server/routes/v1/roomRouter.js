@@ -4,6 +4,7 @@ const RoomController = require('../../Controllers/RoomController');
 const RoomModel = require('../../Models/RoomModel');
 
 router.get("/", (req, res) => {
+	logger.debug("[@Get] room/ ");
 	RoomController.getAll()
 		.then(rooms => {
 			res.json(rooms);
@@ -13,7 +14,7 @@ router.get("/", (req, res) => {
 
 router.get("/:id", (req, res, next) => {
 	const id = req.params['id'];
-	logger.debug("room/:id ( id: %O )", id);
+	logger.debug("[@Get] room/:id ( id: %O )", id);
 	RoomController.getById(id)
 		.then(room => {
 			const statusCode = room ? 200 : 204
@@ -29,12 +30,12 @@ router.post("/", (req, res, next) => {
 	const room = new RoomModel(
 		undefined,
 		body.roomName,
-		body.owner,
-		body.createBy,
+		body.owner, // use session for create
+		body.createBy, // use session
 		undefined
 	);
 
-	logger.debug("@[Post] room/ %O", room);
+	logger.debug("[@Post] room/ %O", room);
 
 	RoomController.create(room)
 		.then(result => {
@@ -45,7 +46,7 @@ router.post("/", (req, res, next) => {
 });
 
 router.patch("/", (req, res, next) => {
-	logger.debug("@[Patch] room/");
+	logger.debug("[@Patch] room/");
 
 	const body = req.body;
 
@@ -67,6 +68,13 @@ router.patch("/", (req, res, next) => {
 
 router.delete('/:id', (req, res, next) => {
 	const id = req.params['id'];
+	logger.debug("[@Delete] room/:id", id);
+
+	RoomController.delete(id)
+		.then(result => {
+			res.json(result);
+		})
+		.catch(err => next(err));
 });
 
 module.exports = router;

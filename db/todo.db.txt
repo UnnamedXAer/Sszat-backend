@@ -8,3 +8,11 @@ users: {
 	- password -> add,
 
 }
+
+messages: {
+	roomIs, createBy, parts -> not null
+}
+
+messageFiles: {
+	messageId -> not null
+}
