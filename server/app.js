@@ -5,9 +5,11 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const logger = require('../logger/pino/index');
 const pino = require('express-pino-logger')({
-	prettyPrint: { colorize: true },
-	level: "silent"
-})
+	logger: logger,
+	useLevel: "error",
+	autoLogging: false,
+	useLevelLabels: true
+});
 
 const routes = require('./routes/index');
 
@@ -23,8 +25,6 @@ app.get("/", (_, res) => {
 
 app.use('/v1/users',routes.usersRouter);
 app.use('/v1/rooms',routes.roomsRouter);
-app.use('/v1/messages',routes.messagesRouter);
-app.use('/v1/messages/:id/file',routes.messageFilesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -35,7 +35,8 @@ app.use(function (req, res, next) {
 app.use(function (err, req, res, next) {
 	const error = req.app.get('env') === 'development' ? err : {};
 	logger.info(req.app.get("env"));
-	logger.error(err);
+	
+	logger.error("[ERROR_HANDLER]: %o", err);
 	
 	// set locals, only providing error in development
 	res.locals.message = err.message;

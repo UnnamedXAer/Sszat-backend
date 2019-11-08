@@ -13,29 +13,30 @@ router.get("/:messageId", (req, res, next) => {
 		.catch(err => next(err));
 });
 
-router.post("/", (req, res, next) => {
-	// i assume that every file will be send separately
-	// validation
-	const body = req.body;
+////- files will be send via socket
+// router.post("/", (req, res, next) => {
+// 	// i assume that every file will be send separately
+// 	// validation
+// 	const body = req.body;
 
-	const messageFile = new MessageFileModel(
-		undefined,
-		body.messageId,
-		body.fileName,
-		body.fileExt,
-		body.fileData,
-		body.createBy, // use session
-		undefined
-	);
+// 	const messageFile = new MessageFileModel(
+// 		undefined,
+// 		body.messageId,
+// 		body.fileName,
+// 		body.fileExt,
+// 		body.fileData,
+// 		body.createBy, // use session
+// 		undefined
+// 	);
 
-	logger.debug("[@Post] messageFile/ %O", messageFile);
+// 	logger.debug("[@Post] messageFile/ %O", messageFile);
 
-	MessageFileController.create(messageFile)
-		.then(result => {
-			logger.debug("create messageFile/ returnedId: %O ", result);
-			res.status(201).json(result);
-		})
-		.catch(err => next(err));
-});
+// 	MessageFileController.create(messageFile)
+// 		.then(result => {
+// 			logger.debug("create messageFile/ returnedId: %O ", result);
+// 			res.status(201).json(result);
+// 		})
+// 		.catch(err => next(err));
+// });
 
 module.exports = router;
