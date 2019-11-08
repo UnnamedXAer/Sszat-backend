@@ -21,10 +21,10 @@ app.get("/", (_, res) => {
 	res.send("sszat-backend");
 });
 
-app.use('/v1/user',routes.userRouter);
-app.use('/v1/room',routes.roomRouter);
-app.use('/v1/message',routes.messageRouter);
-app.use('/v1/messageFile',routes.messageFileRouter);
+app.use('/v1/users',routes.usersRouter);
+app.use('/v1/rooms',routes.roomsRouter);
+app.use('/v1/messages',routes.messagesRouter);
+app.use('/v1/messages/:id/file',routes.messageFilesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

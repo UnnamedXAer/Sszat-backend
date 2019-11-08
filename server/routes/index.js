@@ -1,11 +1,11 @@
-const userRouter = require('./v1/userRouter');
-const roomRouter = require('./v1/roomRouter');
-const messageRouter = require('./v1/messageRouter');
-const messageFileRouter = require('./v1/messageFileRouter');
+const usersRouter = require('./v1/usersRouter');
+const roomsRouter = require('./v1/roomsRouter');
+const messagesRouter = require('./v1/messagesRouter');
+const messageFilesRouter = require('./v1/messageFilesRouter');
 
 module.exports = { 
-	userRouter, 
-	roomRouter, 
-	messageRouter, 
-	messageFileRouter 
+	usersRouter, 
+	roomsRouter, 
+	messagesRouter, 
+	messageFilesRouter 
 };
