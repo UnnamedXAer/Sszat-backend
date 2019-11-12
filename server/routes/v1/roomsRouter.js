@@ -4,7 +4,6 @@ const RoomController = require('../../Controllers/RoomController');
 const RoomModel = require('../../Models/RoomModel');
 
 const messagesRouter = require('./messagesRouter');
-
 router.use("/:roomId/messages", messagesRouter);
 
 

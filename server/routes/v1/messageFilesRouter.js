@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const logger = require('../../../logger/pino');
 const MessageFileController = require('../../Controllers/MessageFileController');
-const MessageFileModel = require('../../Models/MessageFileModel');
 
 router.get("/:messageId", (req, res, next) => {
 	const messageId = req.params['messageId'];
@@ -12,31 +11,5 @@ router.get("/:messageId", (req, res, next) => {
 		})
 		.catch(err => next(err));
 });
-
-////- files will be send via socket
-// router.post("/", (req, res, next) => {
-// 	// i assume that every file will be send separately
-// 	// validation
-// 	const body = req.body;
-
-// 	const messageFile = new MessageFileModel(
-// 		undefined,
-// 		body.messageId,
-// 		body.fileName,
-// 		body.fileExt,
-// 		body.fileData,
-// 		body.createBy, // use session
-// 		undefined
-// 	);
-
-// 	logger.debug("[@Post] messageFile/ %O", messageFile);
-
-// 	MessageFileController.create(messageFile)
-// 		.then(result => {
-// 			logger.debug("create messageFile/ returnedId: %O ", result);
-// 			res.status(201).json(result);
-// 		})
-// 		.catch(err => next(err));
-// });
 
 module.exports = router;
