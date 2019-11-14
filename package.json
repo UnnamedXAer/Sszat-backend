@@ -25,7 +25,8 @@
     "http-errors": "^1.7.3",
     "knex": "^0.20.1",
     "pg": "^7.12.1",
-    "pino": "^5.13.5"
+    "pino": "^5.13.5",
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "pino-pretty": "^3.3.0"

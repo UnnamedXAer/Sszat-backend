@@ -19,12 +19,12 @@ app.use(pino);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (_, res) => {
-	res.send("sszat-backend");
-});
-
 app.use('/v1/users',routes.usersRouter);
-app.use('/v1/rooms',routes.roomsRouter);
+app.use('/v1/rooms', routes.roomsRouter);
+app.use('/v1/rooms', routes.versionRootRouter);
+app.get("/", (req, res) => {
+	res.send({ response: "root" }).status(200);
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
