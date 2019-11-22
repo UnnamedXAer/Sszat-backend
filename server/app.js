@@ -1,5 +1,6 @@
 const express = require('express');
 const createError = require('http-errors');
+const session = require('express-session');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
@@ -10,14 +11,28 @@ const pino = require('express-pino-logger')({
 	autoLogging: false,
 	useLevelLabels: true
 });
+const passport = require('passport');
+require('../server/auth/passport')(passport);
 
 const routes = require('./routes/index');
 
 const app = express();
 
+app.use(cors({
+	origin: "http://localhost:3000"
+}));
 app.use(pino);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(session({
+	secret: "tmpSecret",
+	resave: false,
+	saveUninitialized: true
+	// cookie: {secure: true}
+}));
+// put after session!
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/v1/users',routes.usersRouter);
 app.use('/v1/rooms', routes.roomsRouter);

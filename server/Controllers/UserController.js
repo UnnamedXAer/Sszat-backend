@@ -13,6 +13,7 @@ class UserController {
 					row.id, 
 					row.emailAddress, 
 					row.userName, 
+					undefined,
 					row.provider, 
 					row.joinDate, 
 					row.lastActiveOn
@@ -22,6 +23,32 @@ class UserController {
 
 			return users;
 		}
+		catch (err) {
+			logger.error(err);
+			throw err;
+		}
+	}
+
+	async getByEmailAddress(emailAddress) {
+		try {
+			const results = await knex("users").select("*").where({ emailAddress });
+			logger.debug("getById -> results: %O", results);
+			const row = results[0];
+			if (!row) {
+				return null;
+			}
+			const user = new UserModel(
+				row.id,
+				row.emailAddress,
+				row.userName,
+				row.password,
+				row.provider,
+				row.joinDate,
+				row.lastActiveOn
+			);
+
+			return user;
+		} 
 		catch (err) {
 			logger.error(err);
 			throw err;
@@ -40,6 +67,7 @@ class UserController {
 				row.id,
 				row.emailAddress,
 				row.userName,
+				undefined,
 				row.provider,
 				row.joinDate,
 				row.lastActiveOn
@@ -58,8 +86,9 @@ class UserController {
 			const results = await knex("users")
 				.insert({
 					emailAddress: user.emailAddress,
-					provider: user.provider,
-					userName: user.userName
+					userName: user.userName,
+					password: user.password,
+					provider: user.provider
 				})
 				.returning("id");
 
@@ -84,7 +113,7 @@ class UserController {
 				// 	userName: user.userName,
 				// 	lastActiveOn: user.lastActiveOn
 				// })
-				.update({ ...user })
+				.update({ ...user, password: undefined })
 				.returning("id");
 
 			return results[0];

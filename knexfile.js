@@ -9,7 +9,7 @@ module.exports = {
     connection: {
       user: 'postgres',
       host: 'localhost',
-      password: 'pcpostgrespassword',
+      password: 'pcdbpassword',
       database: 'sszat_database_tmp'
     },
     pool: {
