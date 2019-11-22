@@ -8,6 +8,7 @@ exports.up = function (knex) {
 			table.string("provider", 50).notNullable();
 			table.datetime('joinDate', { precision: 6 }).defaultTo(knex.fn.now(6)).notNullable();
 			table.datetime('lastActiveOn', { precision: 6 }).defaultTo(knex.fn.now(6)).notNullable();
+			table.boolean("isAdmin").defaultTo(false);
 		}),
 
 		knex.schema.createTable("rooms", table => {

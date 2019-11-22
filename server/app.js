@@ -10,6 +10,13 @@ const pino = require('express-pino-logger')({
 	autoLogging: false,
 	useLevelLabels: true
 });
+const config = require("config");
+
+//use config module to get the privatekey, if no private key set, end the application
+if (!config.get("myprivatekey")) {
+	console.error("FATAL ERROR: myprivatekey is not defined.");
+	process.exit(1);
+}
 
 const routes = require('./routes/index');
 
