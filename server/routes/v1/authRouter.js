@@ -23,7 +23,7 @@ router.post("/login", async (req, res, next) => {
 		if (info || !user) {
             res.status(406);
             logger.info("/login - fail: %s", (info ? info.message : "Invalid credentials."));
-			return next((info ? info.message : "Invalid credentials."));
+			return next(new Error(info ? info.message : "Invalid credentials."));
 		}
 
 		req.login(user, (err) => {
