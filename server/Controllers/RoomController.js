@@ -3,10 +3,12 @@ const logger = require('../../logger/pino');
 const RoomModel = require('../Models/RoomModel');
 
 class RoomController {
-	async getAll() {
-		logger.debug("RoomController -> getAll");
+	async getAll(loggedUserId) {
+		logger.debug("RoomController -> getAll for logged User %s", loggedUserId);
 		try {
-			const results = await knex("rooms").select("*");
+			const results = await knex("rooms").join("roomUsers", "rooms.id", "=", "roomUsers.roomId").select("rooms.*").where({
+				userId: loggedUserId
+			});
 			const rooms = results.map(row => {
 				const room = new RoomModel(
 					row.id, 
@@ -51,19 +53,37 @@ class RoomController {
 	}
 
 	async create(room) {
+
+		const trxProvider = knex.transactionProvider();
+		// start transaction
+		const trx = await trxProvider();
 		try {
-			const results = await knex("rooms")
+			const roomIds = await trx('rooms')
 				.insert({
 					roomName: room.roomName,
 					owner: room.owner,
-					// can be replaced with session user when auth functionality will be added.
-					createBy: room.createBy 
-				})
-				.returning("id");
+					createBy: room.createBy,
+					createDate: room.createDate
+				}, "id");
 
-			return results[0];
+			const roomId = roomIds[0];
+
+			const memersData = room.members.map(member => {
+				return {
+					roomId,
+					userId: member
+				};
+			});
+
+			await trx("roomUsers")
+			.insert(memersData, "id");
+
+			trx.commit();
+
+			return roomId;
 		}
 		catch (err) {
+			trx.rollback(err);
 			logger.error(err);
 			throw err;
 		}
