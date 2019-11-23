@@ -5,7 +5,6 @@ const UserModel = require('../Models/UserModel');
 
 class UserController {
 	async getAll() {
-		logger.debug("UserController -> getAll");
 		try {
 			const results = await knex("users").select("*");
 			const users = results.map(row => {
@@ -31,8 +30,11 @@ class UserController {
 
 	async getByEmailAddress(emailAddress) {
 		try {
-			const results = await knex("users").select("*").where({ emailAddress });
-			logger.debug("getById -> results: %O", results);
+			const results = await knex("users").select("*").where(
+				knex.raw('LOWER("emailAddress") = :emailAddress', {
+					emailAddress: emailAddress.toLowerCase()
+				})
+			);
 			const row = results[0];
 			if (!row) {
 				return null;
@@ -58,7 +60,6 @@ class UserController {
 	async getById(id) {
 		try {
 			const results = await knex("users").select("*").where({ id });
-			logger.debug("getById -> results: %O", results);
 			const row = results[0];
 			if (!row) {
 				return null;

@@ -15,11 +15,14 @@ const passport = require('passport');
 require('../server/auth/passport')(passport);
 
 const routes = require('./routes/index');
+const { ensureAuthenticated } = require('./routes/Middleware/ensureAuthenticated');
+const middlewareUrlLogger = require('./routes/Middleware/urlLogger');
 
 const app = express();
 
 app.use(cors({
-	origin: "http://localhost:3000"
+	origin: "http://localhost:3000",
+	credentials: true
 }));
 app.use(pino);
 app.use(express.json());
@@ -34,9 +37,11 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/v1/users',routes.usersRouter);
-app.use('/v1/rooms', routes.roomsRouter);
-app.use('/v1/rooms', routes.versionRootRouter);
+app.use(middlewareUrlLogger);
+app.use('/v1/users', ensureAuthenticated, routes.usersRouter);
+app.use('/v1/rooms', ensureAuthenticated, routes.roomsRouter);
+app.use('/v1/auth', routes.authRouter);
+app.use('/v1', routes.versionRootRouter);
 app.get("/", (req, res) => {
 	res.send({ response: "root" }).status(200);
 });
