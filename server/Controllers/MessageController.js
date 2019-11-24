@@ -13,8 +13,7 @@ class MessageController {
 					row.id,
 					row.roomId,
 					row.parts,
-					0, // TODO - mb query a view instead of table or add 
-					// files cnt column
+					row.filesCount,
 					row.createBy,
 					row.createDate
 				);
@@ -35,10 +34,13 @@ class MessageController {
 				.insert({
 					roomId: message.roomId,
 					parts: message.parts,
-					// can be replaced with session user when auth functionality will be added.
-					createBy: message.createBy
+					createBy: message.createBy,
+					createDate: message.createDate,
+					filesCount: message.filesCount
 				})
 				.returning("id");
+
+				// todo inser files
 
 			return results[0];
 		}
