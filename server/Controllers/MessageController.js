@@ -1,6 +1,7 @@
 const knex = require('../../db');
 const logger = require('../../logger/pino');
 const MessageModel = require('../Models/MessageModel');
+const MessageFileModel = require('../Models/MessageFileModel');
 
 class MessageController {
 	async getByRoom (roomId) {
@@ -17,8 +18,25 @@ class MessageController {
 					row.createBy,
 					row.createDate
 				);
+
 				return message;
 			});
+
+			for (let i = 0; i < messages.length; i++) {
+				const messageId = messages[i].id;
+				const fileResults = await knex("messageFiles").select("*").where({
+					messageId
+				});
+				messages[i].files = fileResults.map(row => {
+					return new MessageFileModel(
+						row.id,
+						messageId,
+						row.fileName,
+						row.fileExt,
+						row.fileData
+					);
+				});
+			}
 
 			return messages;
 		}

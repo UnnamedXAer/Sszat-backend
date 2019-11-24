@@ -60,11 +60,12 @@ router.post("/", async (req, res, next) => {
 
 	try {
 		const roomId = await RoomController.create(room);
-		logger.debug("create room/ returnedId: %O ", roomId);
+		logger.debug("create rooms/ returnedId: %O ", roomId);
 		room.id = roomId;
 		res.status(201).json(room);
 	}
 	catch (err) {
+		logger.error("[@Post] rooms/ - err: %O", err);
 		res.status(500);
 		return next(err);
 	}
