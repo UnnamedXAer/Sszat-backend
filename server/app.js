@@ -3,6 +3,7 @@ const createError = require('http-errors');
 const session = require('express-session');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const KnexSessionStore = require('connect-session-knex')(session);
 const cors = require('cors');
 const logger = require('../logger/pino/index');
 const pino = require('express-pino-logger')({
@@ -27,10 +28,17 @@ app.use(cors({
 app.use(pino);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const store = new KnexSessionStore({
+	knex: require('../config/database'),
+	tablename: "sessions" // optional. Defaults to 'sessions'
+  });
+
 app.use(session({
 	secret: "tmpSecret",
 	resave: false,
-	saveUninitialized: true
+	saveUninitialized: true,
+	store: store
 	// cookie: {secure: true}
 }));
 // put after session!
