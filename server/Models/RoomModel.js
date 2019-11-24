@@ -1,7 +1,7 @@
 module.exports = class RoomModel {
-	constructor(id, roomName, owner, createBy, createDate, members) {
+	constructor(id, name, owner, createBy, createDate, members) {
 		this.id = id;
-		this.roomName = roomName;
+		this.name = name;
 		this.owner = owner;
 		this.createBy = createBy;
 		this.createDate = createDate;

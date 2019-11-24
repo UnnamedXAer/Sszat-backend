@@ -61,10 +61,11 @@ app.use(function (req, res, next) {
 
 // error handler
 app.use(function (err, req, res, next) {
-	const error = req.app.get('env') === 'development' ? err : {};
-	logger.info(req.app.get("env"));
+	const _env = req.app.get("env");
+	const error = _env === 'development' ? err : {};
+	logger.info();
 	
-	logger.error("[ERROR_HANDLER]: %o", err);
+	logger.error("[ERROR_HANDLER](%s): %o", _env, err);
 	
 	// set locals, only providing error in development
 	res.locals.message = err.message;

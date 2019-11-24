@@ -3,23 +3,31 @@ const logger = require('../../logger/pino');
 const RoomModel = require('../Models/RoomModel');
 
 class RoomController {
-	async getAll(loggedUserId) {
-		logger.debug("RoomController -> getAll for logged User %s", loggedUserId);
+	async getByUserId(loggedUserId) {
+		logger.debug("RoomController -> getByUserId for logged User %s", loggedUserId);
 		try {
 			const results = await knex("rooms").join("roomUsers", "rooms.id", "=", "roomUsers.roomId").select("rooms.*").where({
 				userId: loggedUserId
 			});
-			const rooms = results.map(row => {
-				const room = new RoomModel(
+
+			const rooms = [];
+			for (let i = 0; i < results.length; i++) {
+				const row = results[i];
+
+				// todo return members from previos query.
+				const members = await knex("roomUsers").select("userId").where({
+					roomId: row.id
+				});
+
+				rooms.push(new RoomModel(
 					row.id, 
 					row.roomName, 
 					row.owner, 
 					row.createBy, 
-					row.createDate
-				);
-				return room;
-			});
-
+					row.createDate,
+					members.map(x => x.userId)
+				));
+			}
 			return rooms;
 		}
 		catch (err) {
@@ -36,12 +44,18 @@ class RoomController {
 			if (!row) {
 				return null;
 			}
+
+			const members = await knex("roomUsers").select("userId").where({
+				roomId: row.id
+			});
+
 			const room = new RoomModel(
 				row.id,
 				row.roomName,
 				row.owner,
 				row.createBy,
-				row.createDate
+				row.createDate,
+				members.map(x => x.userId)
 			);
 
 			return room;
@@ -60,7 +74,7 @@ class RoomController {
 		try {
 			const roomIds = await trx('rooms')
 				.insert({
-					roomName: room.roomName,
+					roomName: room.name,
 					owner: room.owner,
 					createBy: room.createBy,
 					createDate: room.createDate
@@ -93,10 +107,12 @@ class RoomController {
 
 		const roomId = room.id;
 		room.id = undefined;
-
 		try {
 			const results = await knex("rooms")
-				.update({ ...room })
+				.update({ 
+					roomName: room.name,
+					owner: room.owner
+				})
 				.where({ id: roomId })
 				.returning("id");
 			return results[0];
@@ -108,14 +124,38 @@ class RoomController {
 	}
 
 	async delete(id) {
+		const trxProvider = knex.transactionProvider();
+		const trx = await trxProvider();
 		try {
-			const results = await knex("rooms")
+			await trx("roomUsers")
+				.delete()
+				.where({ roomId: id });
+
+			const results = await trx("rooms")
 				.delete()
 				.where({ id })
 				.returning("id");
 
+			trx.commit();
 			return results[0];
 		} 
+		catch (err) {
+			trx.rollback(err);
+			logger.error(err);
+			throw err;
+		}
+	}
+
+	async deleteMember(roomId, userId) {
+		try {
+			const results = await knex("roomUsers")
+				.delete().where({
+				roomId,
+				userId
+			})
+			.returning("id");
+			return results[0];
+		}
 		catch (err) {
 			logger.error(err);
 			throw err;
