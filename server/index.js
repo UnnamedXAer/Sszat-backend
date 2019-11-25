@@ -11,17 +11,8 @@ const server = (
 );
 
 const io = socketIo(server, {});
-let interval;
-io.on("connection", socket => {
-	logger.debug("New client connected");
-	console.log("New client connected, socket.id = ", socket.id);
-	socket.emit("FromAPI", {empty: true})
-
-	socket.on("disconnect", () => {
-		logger.debug("Client disconnected");
-		console.log("Client disconnected");
-	});
-});
+const ioConnectionCallback = require('./socket/ioConnection');
+io.on("connection", ioConnectionCallback);
 
 server.listen(PORT, () => {
 	logger.info("Server is listening on: ", `${process.env.HOSTING == "LOCAL"? "https":"http"}://localhost:${PORT}`);

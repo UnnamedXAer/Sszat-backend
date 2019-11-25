@@ -1,1 +1,3 @@
 DB_PASSWORD=pcdbpassword
+
+DEBUG=socket.io*
