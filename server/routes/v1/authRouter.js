@@ -58,7 +58,7 @@ router.post("/register", async (req, res, next) => {
 			return next(new Error("Invalid input."));
 		}
 
-		const hashPssword = await bcrypt.hash(password, await bcrypt.genSalt(10));
+		const hashPassword = await bcrypt.hash(password, await bcrypt.genSalt(10));
 
 		const joinDate = new Date().toUTCString();
 
@@ -66,11 +66,11 @@ router.post("/register", async (req, res, next) => {
 			undefined,
 			emailAddress,
 			userName,
-			hashPssword,
+			hashPassword,
 			provider,
 			joinDate,
 			joinDate
-			);
+		);
 
 	UserController.create(user)
 		.then(async id => {
@@ -83,7 +83,7 @@ router.post("/register", async (req, res, next) => {
                     logger.error("/register - req.login user: %O, err: %O", user, err);
                     return next(err); 
                 }
-                return res.status(201).send(user);
+				return res.status(201).send(createdUser);
             });
 		})
 		.catch(err => {

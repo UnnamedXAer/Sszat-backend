@@ -1,10 +1,10 @@
-const LocaStrategy = require('passport-local').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
 const UserController = require('../Controllers/UserController');
 const bcrypt = require('bcrypt');
 
 module.exports = (passport) => {
     passport.use(
-        new LocaStrategy({
+        new LocalStrategy({
             usernameField: "emailAddress",
             passwordField: "password"
         }, async (emailAddress, password, done) => {
@@ -36,7 +36,7 @@ module.exports = (passport) => {
     // when the cookie comes back to us from the browser when make request we receive that id then we find the user that mach to given id
     passport.deserializeUser(async (id, done) => {
         try {
-            const user = await UserController.getById(id);
+			const user = await UserController.getById(id);
             if (user) {
                 done(null, user);
             }
