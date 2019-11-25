@@ -27,13 +27,16 @@ router.post("/", async (req, res, next) => {
 	const {
 		parts,
 		createdBy,
-		filesCount
+		filesCount,
+		files
 	} = req.body;
 	
 	if (createdBy !== loggedUserId
 		|| !parts
 		|| (+filesCount !== parseInt(filesCount, 10))
 		|| (+roomId !== parseInt(roomId, 10))
+		|| typeof files != "object"
+		|| files.length === undefined
 		) {
 		res.status(406);
 		return next(new Error("Invalid input."));
@@ -41,7 +44,7 @@ router.post("/", async (req, res, next) => {
 
 	try {
 		const room = await RoomController.getById(roomId);
-
+		
 		if (!room.members.includes(loggedUserId)) {
 			res.status(401);
 			throw new Error("Un-auhtorized");
@@ -53,7 +56,8 @@ router.post("/", async (req, res, next) => {
 			JSON.stringify(parts),
 			filesCount,
 			loggedUserId,
-			new Date().toUTCString()
+			new Date().toUTCString(),
+			files
 		);
 
 		const messageId = await MessageController.create(message);

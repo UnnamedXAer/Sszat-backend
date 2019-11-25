@@ -47,8 +47,10 @@ class MessageController {
 	}
 
 	async create(message) {
+		const trxProvider = knex.transactionProvider();
+		const trx = await trxProvider();
 		try {
-			const results = await knex("messages")
+			const results = await trx("messages")
 				.insert({
 					roomId: message.roomId,
 					parts: message.parts,
@@ -58,11 +60,28 @@ class MessageController {
 				})
 				.returning("id");
 
-				// todo inser files
+			const messageId = results[0];
 
-			return results[0];
+			for (let i = 0; i < message.files.length; i++) {
+				const file = message.files[i];
+
+				// supposed to be send by stream etc, etc..
+				const data = Buffer.from(file.data.data);
+				const fileResult = await trx("messageFiles")
+					.insert({
+						messageId,
+						fileName: file.name,
+						fileExt: file.ext,
+						fileData: data
+					})
+					.returning("id");
+					file.id = fileResult[0];
+			}
+			trx.commit();
+			return messageId;
 		}
 		catch (err) {
+			trx.rollback(err);
 			logger.error(err);
 			throw err;
 		}

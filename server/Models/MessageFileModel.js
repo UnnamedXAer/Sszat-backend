@@ -5,7 +5,5 @@ module.exports = class MessageFileModel {
 		this.name = fileName;
 		this.ext = fileExt;
 		this.data = fileData;
-		this.createBy = createBy;
-		this.createDate = createDate;
 	}
 }

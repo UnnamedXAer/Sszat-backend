@@ -27,8 +27,13 @@ app.use(cors({
 	credentials: true
 }));
 app.use(pino);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({
+	limit: '25mb'
+}));
+app.use(express.urlencoded({ 
+	extended: true,
+	limit: '25mb'
+}));
 
 const store = new KnexSessionStore({
 	knex: require('../config/database'),
