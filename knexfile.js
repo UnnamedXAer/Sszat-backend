@@ -1,4 +1,4 @@
-
+require('dotenv').config();
 
 module.exports = {
 
@@ -9,7 +9,7 @@ module.exports = {
     connection: {
       user: 'postgres',
       host: 'localhost',
-      password: 'pcdbpassword',
+      password: process.env.DB_PASSWORD,
       database: 'sszat_database_tmp'
     },
     pool: {
