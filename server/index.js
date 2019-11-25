@@ -10,9 +10,10 @@ const server = (
 		 : require('http').createServer(app)
 );
 
-const io = socketIo(server, {});
+const io = socketIo(server);
 const ioConnectionCallback = require('./socket/ioConnection');
 io.on("connection", ioConnectionCallback);
+
 
 server.listen(PORT, () => {
 	logger.info("Server is listening on: ", `${process.env.HOSTING == "LOCAL"? "https":"http"}://localhost:${PORT}`);
