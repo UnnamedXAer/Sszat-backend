@@ -6,10 +6,10 @@ const ioConnectionCallback = socket => {
 		logger.debug("-----SOCKET----- Client disconnected socket.id: %s", socket.id);
 	});
 
-	socket.on("new-message", data => {
-		logger.debug("-----SOCKET----- on new-message, %O", data);
-		socket.broadcast.emit("new-message", { ...data, message: { ...data.message, id: 9999 } });
-		socket.emit("new-message-completed", { ...data, message: { ...data.message, id: 9999 } });
+	socket.on("MESSAGE_NEW", data => {
+		logger.debug("-----SOCKET----- on MESSAGE_NEW, %O", data);
+		socket.broadcast.emit("MESSAGE_NEW", { ...data, message: { ...data.message, id: 9999 } });
+		socket.emit("MESSAGE_NEW_COMPLETED", { ...data, message: { ...data.message, id: 9999 } });
 	});
 
 	socket.emit("connected", { DateTime: new Date().toUTCString() });
