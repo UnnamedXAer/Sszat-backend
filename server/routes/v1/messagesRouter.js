@@ -47,7 +47,7 @@ router.post("/", async (req, res, next) => {
 		
 		if (!room.members.includes(loggedUserId)) {
 			res.status(401);
-			throw new Error("Un-auhtorized");
+			throw new Error("Un-authorized");
 		}
 
 		const message = new MessageModel(
