@@ -1,9 +1,11 @@
 const socketIo = require("socket.io");
+var sharedsession = require("express-socket.io-session");
 const logger = require('../../logger/pino');
 const messageListeners = require("./listeners/messageListeners");
 let io;
-const initSocket = (server) => {
+const initSocket = (server, session) => {
 	io = socketIo(server);
+	io.use(sharedsession(session));
 
 	io.on("connection", socket => {
 		logger.debug("-----SOCKET----- New client connected socket.id: %s", socket.id);
@@ -16,14 +18,13 @@ const initSocket = (server) => {
 		});
 
 		
-		socket.emit("connected", { DateTime: new Date().toUTCString() });
-
-		socket.on("activeRoom", (roomId) => {
-			console.log('roomId', roomId);
-
-			socket.emit("activeRoomUpdated", { roomId });
-		})
+		// socket.broadcast
+		io.emit("USER_JOINED", { 
+			DateTime: new Date().toUTCString(),
+			session: socket.handshake.session.user
+		});
 	});	
-}
+};
+
 
 module.exports = initSocket;

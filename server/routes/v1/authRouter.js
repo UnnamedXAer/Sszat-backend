@@ -7,7 +7,8 @@ const UserModel = require('../../Models/UserModel');
 
 
 router.get("/logout", (req, res) => {
-    logger.debug("/logout : Try to log-Out %O", req.user);
+	logger.debug("/logout : Try to log-Out %O", req.user);
+	delete req.session.user;
 	req.logout();
 	res.sendStatus(200);
 });
@@ -32,6 +33,8 @@ router.post("/login", async (req, res, next) => {
                 logger.error("/login - req.login user: %O, err: %O", user, err);
 				return next(err); 
 			}
+			
+			res.req.session.user = res.req.user;
 			return res.status(200).send(user);
 		});
 
@@ -83,6 +86,7 @@ router.post("/register", async (req, res, next) => {
                     logger.error("/register - req.login user: %O, err: %O", user, err);
                     return next(err); 
                 }
+				res.req.session.user = res.req.user;
 				return res.status(201).send(createdUser);
             });
 		})

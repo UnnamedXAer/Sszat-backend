@@ -1,4 +1,4 @@
-const app = require("./app");
+const { app, expressSession } = require("./app");
 const logger = require('../logger/pino/index');
 const normalizePort = require('./utils/normalizePort');
 
@@ -9,7 +9,7 @@ const server = (
 		 : require('http').createServer(app)
 );
 
-require("./socket/ioSocket")(server);
+require("./socket/ioSocket")(server, expressSession);
 
 server.listen(PORT, () => {
 	logger.info("Server is listening on: ", `${process.env.HOSTING == "LOCAL"? "https":"http"}://localhost:${PORT}`);

@@ -2,9 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const createError = require('http-errors');
 const session = require('express-session');
+const KnexSessionStore = require('connect-session-knex')(session);
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const KnexSessionStore = require('connect-session-knex')(session);
 const cors = require('cors');
 const logger = require('../logger/pino/index');
 const pino = require('express-pino-logger')({
@@ -40,17 +40,18 @@ const store = new KnexSessionStore({
 	tablename: "sessions" // optional. Defaults to 'sessions'
   });
 
-app.use(session({
+const expressSession = session({
 	secret: "tmpSecret",
 	resave: false,
 	saveUninitialized: true,
 	store: store
 	// cookie: {secure: true}
-}));
+})
+
+app.use(expressSession);
 // put after session!
 app.use(passport.initialize());
 app.use(passport.session());
-
 app.use(middlewareUrlLogger);
 app.use('/v1/users', ensureAuthenticated, routes.usersRouter);
 app.use('/v1/rooms', ensureAuthenticated, routes.roomsRouter);
@@ -86,4 +87,4 @@ app.use(function (err, req, res, next) {
 });
 
 
-module.exports = app;
+module.exports = { app, expressSession };
