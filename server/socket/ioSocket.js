@@ -19,7 +19,7 @@ const initSocket = (server, session) => {
 
 		
 		// socket.broadcast
-		io.emit("USER_JOINED", { 
+		socket.broadcast.emit("USER_JOINED", { 
 			DateTime: new Date().toUTCString(),
 			session: socket.handshake.session.user
 		});
