@@ -1,11 +1,11 @@
 const socketIo = require("socket.io");
-var sharedsession = require("express-socket.io-session");
+var sharedSession = require("express-socket.io-session");
 const logger = require('../../logger/pino');
 const messageListeners = require("./listeners/messageListeners");
 let io;
 const initSocket = (server, session) => {
 	io = socketIo(server);
-	io.use(sharedsession(session));
+	io.use(sharedSession(session));
 
 	io.on("connection", socket => {
 		logger.debug("-----SOCKET----- New client connected socket.id: %s", socket.id);

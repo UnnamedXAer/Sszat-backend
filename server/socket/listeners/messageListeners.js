@@ -9,7 +9,7 @@ const listeners = {
 		const loggedUserId = socket.handshake.session.user.id;
 		logger.debug("-----SOCKET----- on MESSAGE_NEW, %O", data);
 		// console.log(`++++++[SOCKET]+++ msg.user.id: ${data.message.authorId}, session.user: %c${socket.handshake.session.user.userName} (${loggedUserId})`);
-		logger.debug(`++++++[SOCKET]+++ msg.user.id: ${data.message.authorId}, session.user: ${socket.handshake.session.user.userName} (${loggedUserId})`);
+		logger.debug(`++++++[SOCKET]+++ msg.user.id: ${data.message.createdBy}, session.user: ${socket.handshake.session.user.userName} (${loggedUserId})`);
 		if (data.roomId == "public") {
 			const payload = {
 				type: data.type,
