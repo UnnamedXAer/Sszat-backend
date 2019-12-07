@@ -127,6 +127,11 @@ class RoomController {
 		const trxProvider = knex.transactionProvider();
 		const trx = await trxProvider();
 		try {
+
+			await trx("messages")
+				.delete()
+				.where({ roomId: id });
+
 			await trx("roomUsers")
 				.delete()
 				.where({ roomId: id });
