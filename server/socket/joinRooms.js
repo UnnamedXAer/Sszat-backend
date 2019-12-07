@@ -7,12 +7,12 @@ const joinRooms = async (socket) => {
 
     socket.join("public");
     const rooms = await RoomController.getByUserId(user.id);
-    logger.debug("User %s (%s) is about to join to rooms: %O", user.emailAddress, user.id, rooms);
+    logger.debug("--SOCKET-- User %s (%s) is about to join to rooms: %O", user.emailAddress, user.id, rooms);
 
     rooms.forEach(room => {
         socket.join(room.id, err => {
             if (err) {
-                logger.error("User %s (%s) could not join to room: %O, error: %O", user.emailAddress, user.id, room.id, err);
+                logger.error("--SOCKET-- User %s (%s) could not join to room: %O, error: %O", user.emailAddress, user.id, room.id, err);
                 socket.emit("room_join_error", {roomId: room.id, error: err});
             }
         });

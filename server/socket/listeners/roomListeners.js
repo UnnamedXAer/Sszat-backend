@@ -5,7 +5,7 @@ const RoomModel = require('../../Models/RoomModel');
 const listeners = {
     "ROOM_NEW": async (data, socket, io, clients) => {
         const loggedUserId = socket.handshake.session.user.id;
-        logger.debug(`-----SOCKET----- on ROOM_NEW, %O \n session.user: %s (%s)`, 
+        logger.info(`-----SOCKET----- on ROOM_NEW, %O \n session.user: %s (%s)`, 
             data,
             socket.handshake.session.user.userName,
             socket.handshake.session.user.id
@@ -79,6 +79,67 @@ const listeners = {
             logger.error("-----SOCKET----- on ROOM_NEW err: %O", err);
 
             return socket.emit("ROOM_NEW_FAIL", {
+                payload: { error: err.message }
+            });
+        }
+    },
+
+    "ROOM_DELETE": async (data, socket, io) => {
+        const loggedUserId = socket.handshake.session.user.id;
+        logger.info("-----SOCKET----- ROOM_DELETE delete room Id: %s, loggedUserId: %s", data, loggedUserId);
+        const { id } = data;
+        if ((+id !== parseInt(id, 10))) {
+            logger.debug("-----SOCKET----- on ROOM_DELETE [Invalid input] %O", data);
+            return socket.emit("ROOM_DELTE_FAIL", {
+                payload: {
+                    error: "Invalid input."
+                }
+            });
+        }
+
+        try {
+            const room = await RoomController.getById(id);
+            if (room.owner !== loggedUserId) {
+                logger.debug("-----SOCKET----- on ROOM_DELETE [Invalid input] %O", data);
+                return socket.emit("ROOM_DELTE_FAIL", {
+                    payload: {
+                        error: "Invalid input."
+                    }
+                });
+            }
+
+            const removedRoomId = await RoomController.delete(id)
+            logger.info("-----SOCKET----- on ROOM_DELETE - deleted from DB: %s", removedRoomId);
+
+            io.of('/').in(id).clients((err, socketIds) => {
+                if (err) {
+                    logger.error("-----SOCKET----- on ROOM_DELETE err: %O", err);
+
+                    socket.emit("ROOM_DELETE_FAIL", {
+                        payload: { error: err.message }
+                    });
+                }
+                logger.debug("-----SOCKET----- ROOM_DELETE room Id: %s, sockets: %o", id, socketIds);
+
+                const payload = {
+                    type: data.type,
+                    payload: {
+                        roomId: removedRoomId
+                    }
+                };
+    
+                socket.to(id).emit("ROOM_DELETE", payload);
+                socket.emit("ROOM_DELETE_FINISH", payload);
+
+                socketIds.forEach(socketId => {
+                    io.sockets.sockets[socketId].leave(id)
+                });
+            });
+        }
+        catch (err) {
+            logger.error("-----SOCKET----- on ROOM_DELETE err: %O", err);
+
+            socket.emit("ROOM_DELETE_FAIL", {
                 payload: { error: err.message }
             });
         }
