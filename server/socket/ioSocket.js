@@ -2,13 +2,22 @@ const socketIo = require("socket.io");
 var sharedSession = require("express-socket.io-session");
 const logger = require('../../logger/pino');
 const messageListeners = require("./listeners/messageListeners");
+const roomListeners = require("./listeners/roomListeners");
+const joinRooms = require('./joinRooms');
+
 let io;
+
+
 const initSocket = (server, session) => {
 	io = socketIo(server);
+	io.clientsMap = {};
 	io.use(sharedSession(session));
 
-	io.on("connection", socket => {
+	io.on("connection", socket => {	
 		logger.debug("-----SOCKET----- New client connected socket.id: %s", socket.id);
+
+		io.clientsMap[socket.handshake.session.user.id] = socket.id;
+
 		socket.on("disconnect", () => {
 			logger.debug("-----SOCKET----- Client disconnected socket.id: %s", socket.id);
 
@@ -17,23 +26,16 @@ const initSocket = (server, session) => {
 			});
 		});
 
+		joinRooms(socket);
 		socket.emit("connected");
-
-		// socket.join("public", (err) => {
-		// 	if (err) {
-		// 		socket.emit("room_join_error", {roomId: "public", error: err});
-		// 	}
-		// 	else {
-		// 		socket.broadcast.emit("room_join", {
-		// 			user: socket.handshake.session.user
-		// 		});
-		// 	}
-		// });
 
 		Object.keys(messageListeners).forEach(key => {
 			socket.on(key, (data) => messageListeners[key](data, socket));
 		});
 
+		Object.keys(roomListeners).forEach(key => {
+			socket.on(key, (data) => roomListeners[key](data, socket, io));
+		});
 		
 		// socket.broadcast
 		socket.broadcast.emit("USER_ONLINE", { 

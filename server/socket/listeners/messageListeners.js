@@ -70,7 +70,7 @@ const listeners = {
 				);
 
 				const messageId = await MessageController.create(message);
-				logger.debug("create /rooms/%s/messages  returnedId: %O ", roomId, messageId);
+				logger.debug("-----SOCKET----- MESSAGE_NEW roomId: %s, new message Id: %s,", roomId, messageId);
 				message.id = messageId;
 				message.parts = parts;
 				const payload = {
@@ -82,18 +82,17 @@ const listeners = {
 					}
 				};
 
-				socket.broadcast.emit("MESSAGE_NEW", payload);
 				socket.emit("MESSAGE_NEW_FINISH", payload);
+				socket.broadcast.emit("MESSAGE_NEW", payload);
 			}
 			catch (err) {
 				logger.error("-----SOCKET----- on MESSAGE_NEW err: %O", roomId, err);
 				return socket.emit("MESSAGE_NEW_FAIL", {
-					payload:{error: err.message}
+					payload: { error: err.message }
 				});
 			}
 		}
-	},
-
+	}
 }
 
 module.exports = listeners;

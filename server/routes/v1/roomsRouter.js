@@ -18,58 +18,58 @@ router.get("/", (req, res) => {
 		});
 });
 
-router.post("/", async (req, res, next) => {
-	logger.debug("[@Post] room/ %O", req.body);
+// router.post("/", async (req, res, next) => {
+// 	logger.debug("[@Post] room/ %O", req.body);
 	
-	const {
-		name,
-		owner,
-		createBy,
-		members
-	} = req.body;
-	// validation
+// 	const {
+// 		name,
+// 		owner,
+// 		createBy,
+// 		members
+// 	} = req.body;
+// 	// validation
 
-	const loggedUserId = req.user.id;
+// 	const loggedUserId = req.user.id;
 
-	const checkIfUnique = arr => {
-		const obj = {};
-		arr.forEach(x => {
-			obj[x] = true;
-		});
+// 	const checkIfUnique = arr => {
+// 		const obj = {};
+// 		arr.forEach(x => {
+// 			obj[x] = true;
+// 		});
 
-		return arr.length === Object.keys(obj).length;
-	};
+// 		return arr.length === Object.keys(obj).length;
+// 	};
 
-	if (!(name && name.trim().length > 2 && name.length <= 50
-	&& members && typeof members == "object" && members.length > 1
-	&& members.includes(loggedUserId) && checkIfUnique(members)
-	&& owner && createBy
-	&& owner === createBy && createBy === loggedUserId)) {
-		res.status(406);
-		return next(new Error("Invalid input."));
-	}
+// 	if (!(name && name.trim().length > 2 && name.length <= 50
+// 	&& members && typeof members == "object" && members.length > 1
+// 	&& members.includes(loggedUserId) && checkIfUnique(members)
+// 	&& owner && createBy
+// 	&& owner === createBy && createBy === loggedUserId)) {
+// 		res.status(406);
+// 		return next(new Error("Invalid input."));
+// 	}
 
-	const room = new RoomModel(
-		undefined,
-		name,
-		loggedUserId, // use session for create
-		loggedUserId, // use session
-		new Date().toUTCString(),
-		members
-	);
+// 	const room = new RoomModel(
+// 		undefined,
+// 		name,
+// 		loggedUserId, // use session for create
+// 		loggedUserId, // use session
+// 		new Date().toUTCString(),
+// 		members
+// 	);
 
-	try {
-		const roomId = await RoomController.create(room);
-		logger.debug("create rooms/ returnedId: %O ", roomId);
-		room.id = roomId;
-		res.status(201).json(room);
-	}
-	catch (err) {
-		logger.error("[@Post] rooms/ - err: %O", err);
-		res.status(500);
-		return next(err);
-	}
-});
+// 	try {
+// 		const roomId = await RoomController.create(room);
+// 		logger.debug("create rooms/ returnedId: %O ", roomId);
+// 		room.id = roomId;
+// 		res.status(201).json(room);
+// 	}
+// 	catch (err) {
+// 		logger.error("[@Post] rooms/ - err: %O", err);
+// 		res.status(500);
+// 		return next(err);
+// 	}
+// });
 
 router.patch("/", async (req, res, next) => {
 	logger.debug("[@Patch] rooms/ %o", req.body);
