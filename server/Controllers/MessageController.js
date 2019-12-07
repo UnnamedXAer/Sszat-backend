@@ -67,10 +67,15 @@ class MessageController {
 
 				// supposed to be send by stream etc, etc..
 				const data = Buffer.from(file.data.data);
+				let fileName = file.name;
+				if (fileName.length > 50) {
+					fileName = fileName.substr(0, 50 - file.ext.length);
+					fileName += file.ext;
+				}
 				const fileResult = await trx("messageFiles")
 					.insert({
 						messageId,
-						fileName: file.name,
+						fileName: fileName,
 						fileExt: file.ext,
 						fileData: data
 					})
