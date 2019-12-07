@@ -30,7 +30,7 @@ const initSocket = (server, session) => {
 		socket.emit("connected");
 
 		Object.keys(messageListeners).forEach(key => {
-			socket.on(key, (data) => messageListeners[key](data, socket));
+			socket.on(key, (data) => messageListeners[key](data, socket, io));
 		});
 
 		Object.keys(roomListeners).forEach(key => {

@@ -5,7 +5,7 @@ const MessageModel = require('../../Models/MessageModel');
 
 
 const listeners = {
-	"MESSAGE_NEW": async (data, socket) => {
+	"MESSAGE_NEW": async (data, socket, io) => {
 		const loggedUserId = socket.handshake.session.user.id;
 		logger.debug("-----SOCKET----- on MESSAGE_NEW, %O", data);
 		// console.log(`++++++[SOCKET]+++ msg.user.id: ${data.message.authorId}, session.user: %c${socket.handshake.session.user.userName} (${loggedUserId})`);
@@ -23,8 +23,9 @@ const listeners = {
 				}
 			};
 
-			socket.broadcast.emit("MESSAGE_NEW", payload);
-			socket.emit("MESSAGE_NEW_FINISH", payload);
+			console.log("---SOCKET---members of: "+data.roomId, socket.rooms);
+			socket.to(data.roomId).emit("MESSAGE_NEW", payload);
+			socket.emit("MESSAGE_NEW", payload);
 		}
 		else {
 			// validate Message
@@ -83,7 +84,8 @@ const listeners = {
 				};
 
 				socket.emit("MESSAGE_NEW_FINISH", payload);
-				socket.broadcast.emit("MESSAGE_NEW", payload);
+				socket.to(data.roomId).emit("MESSAGE_NEW", payload);
+			// socket.broadcast.emit("MESSAGE_NEW", payload);
 			}
 			catch (err) {
 				logger.error("-----SOCKET----- on MESSAGE_NEW err: %O", roomId, err);
