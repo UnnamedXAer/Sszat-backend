@@ -128,6 +128,13 @@ class RoomController {
 		const trx = await trxProvider();
 		try {
 
+			await trx("messageFiles")
+				.delete()
+				.whereIn(
+					"messageId", 
+					knex("messages").select("id").where({ roomId: id })
+				);
+
 			await trx("messages")
 				.delete()
 				.where({ roomId: id });
