@@ -143,6 +143,46 @@ const listeners = {
                 payload: { error: err.message }
             });
         }
+    },
+
+    "ROOM_LEAVE": async (data, socket, io) => {
+        const loggedUserId = socket.handshake.session.user.id;
+        logger.info("-----SOCKET----- ROOM_LEAVE Leave room data: %o, loggedUserId: %s", data, loggedUserId);
+        const { id } = data;
+
+        const roomId = +id;
+        if (roomId !== id) {
+            logger.debug("-----SOCKET----- on ROOM_LEAVE [Invalid input] %O", data);
+            return socket.emit("ROOM_LEAVE_FAIL", {
+                payload: {
+                    error: "Invalid input."
+                }
+            });
+        }
+
+        try {
+            const removedRecordId = await RoomController.deleteMember(roomId, loggedUserId);
+            logger.info("-----SOCKET----- on ROOM_LEAVE - room Id: %s, removed user Id: %s", roomId, removedRecordId);
+
+            const payload = {
+                type: data.type,
+                payload: {
+                    roomId,
+                    userId: loggedUserId
+                }
+            };
+
+            socket.to(roomId).emit("ROOM_LEAVE", payload);
+            socket.emit("ROOM_LEAVE_FINISH", payload);
+            socket.leave(roomId);
+        }
+        catch (err) { 
+            logger.error("-----SOCKET----- on ROOM_LEAVE err: %O", err);
+
+            socket.emit("ROOM_LEAVE_FAIL", {
+                payload: { error: err.message }
+            });
+        }
     }
 };
 

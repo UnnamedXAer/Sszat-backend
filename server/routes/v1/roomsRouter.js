@@ -61,32 +61,32 @@ router.patch("/", async (req, res, next) => {
 });
 
 
-router.delete('/:roomId/members/:id', async (req, res, next) => {
-	const roomId = req.params['roomId'];
-	const id = req.params['id'];
-	logger.debug("[@Delete] /rooms/%s/members/%s", roomId, id);
+// router.delete('/:roomId/members/:id', async (req, res, next) => {
+// 	const roomId = req.params['roomId'];
+// 	const id = req.params['id'];
+// 	logger.debug("[@Delete] /rooms/%s/members/%s", roomId, id);
 
-	const _id = parseInt(id, 10);
-	if ((+id !== _id) || (+roomId !== parseInt(roomId, 10))) {
-		res.status(406);
-		return next(new Error("Invalid input."));
-	}
+// 	const _id = parseInt(id, 10);
+// 	if ((+id !== _id) || (+roomId !== parseInt(roomId, 10))) {
+// 		res.status(406);
+// 		return next(new Error("Invalid input."));
+// 	}
 
-	try {
-		const room = await RoomController.getById(roomId);
-		if (room.owner !== req.user.id && req.user.id !== _id) {
-			res.status(401);
-			throw new Error("Un-auhtorized");
-		}
-		const removedRecordId = await RoomController.deleteMember(roomId, _id)
-		logger.info("[@Delete] /rooms/%s/members/%s - deleted: %s", roomId, _id, removedRecordId);
-		res.json(_id);
-	}
-	catch (err) { 
-		logger.error("[@delete] /rooms/%s/members/%s err: %o", roomId, _id, err);
-		res.status(500);
-		next(err);
-	}
-});
+// 	try {
+// 		const room = await RoomController.getById(roomId);
+// 		if (room.owner !== req.user.id && req.user.id !== _id) {
+// 			res.status(401);
+// 			throw new Error("Un-auhtorized");
+// 		}
+// 		const removedRecordId = await RoomController.deleteMember(roomId, _id)
+// 		logger.info("[@Delete] /rooms/%s/members/%s - deleted: %s", roomId, _id, removedRecordId);
+// 		res.json(_id);
+// 	}
+// 	catch (err) { 
+// 		logger.error("[@delete] /rooms/%s/members/%s err: %o", roomId, _id, err);
+// 		res.status(500);
+// 		next(err);
+// 	}
+// });
 
 module.exports = router;
