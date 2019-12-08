@@ -162,7 +162,7 @@ const listeners = {
 
         try {
             const removedRecordId = await RoomController.deleteMember(roomId, loggedUserId);
-            logger.info("-----SOCKET----- on ROOM_LEAVE - room Id: %s, removed user Id: %s", roomId, removedRecordId);
+            logger.info("-----SOCKET----- on ROOM_LEAVE - room Id: %s, removed roomUsers.Id: %s", roomId, removedRecordId);
 
             const payload = {
                 type: data.type,
@@ -180,6 +180,76 @@ const listeners = {
             logger.error("-----SOCKET----- on ROOM_LEAVE err: %O", err);
 
             socket.emit("ROOM_LEAVE_FAIL", {
+                payload: { error: err.message }
+            });
+        }
+    },
+
+    "ROOM_KICK_USER": async (data, socket, io) => {
+        const loggedUserId = socket.handshake.session.user.id;
+        logger.info("-----SOCKET----- ROOM_KICK_USER Kick user from room. data: %o, loggedUserId: %s", data, loggedUserId);
+        const { roomId, userId } = data;
+
+        if ((+userId !==  parseInt(userId, 10)) || (+roomId !== parseInt(roomId, 10))) {
+            logger.debug("-----SOCKET----- on ROOM_KICK_USER [Invalid input.] %O", data);
+            return socket.emit("ROOM_LEAVE_FAIL", {
+                payload: {
+                    error: "Invalid input."
+                }
+            });
+        }
+
+        try {
+            const room = await RoomController.getById(roomId);
+            if (room.owner !== loggedUserId) {
+                logger.debug("-----SOCKET----- on ROOM_KICK_USER [Un-auhtorized] %O", data);
+                return socket.emit("ROOM_KICK_USER_FAIL", {
+                    payload: {
+                        error: "Un-auhtorized"
+                    }
+                });
+            }
+
+            if (room.owner === userId) {
+                logger.debug("-----SOCKET----- on ROOM_KICK_USER [Cannot Kick Owner] %O", data);
+                return socket.emit("ROOM_KICK_USER_FAIL", {
+                    payload: {
+                        error: "Can not kick the room owner"
+                    }
+                });
+            }
+
+            const removedRecordId = await RoomController.deleteMember(roomId, userId);
+            logger.debug("-----SOCKET----- on ROOM_KICK_USER - room Id: %s, removed roomUsers.Id: %s", roomId, removedRecordId);
+
+            const payload = {
+                type: data.type,
+                payload: {
+                    roomId,
+                    userId
+                }
+            };
+
+            const kickedUserSocketId = io.clientsMap[userId];
+            if (kickedUserSocketId) {
+                // otherwise means that user is not online
+                io.sockets.sockets[kickedUserSocketId].leave(roomId);
+                const KickedUserMessagePayload = {
+                    type: data.type,
+                    payload: {
+                        roomId,
+                        customInfo: `You have been kicked from room ${room.name}`
+                    }
+                };
+                io.sockets.sockets[kickedUserSocketId].emit("ROOM_DELETE", KickedUserMessagePayload);
+            }
+
+            socket.emit("ROOM_LEAVE", payload);
+            socket.to(roomId).emit("ROOM_LEAVE", payload);
+        }
+        catch (err) {
+            logger.error("-----SOCKET----- on ROOM_KICK_USER err: %O", err);
+            socket.emit("ROOM_KICK_USER_FAIL", {
                 payload: { error: err.message }
             });
         }
