@@ -66,9 +66,9 @@ const listeners = {
 
             members.forEach(member => {
                 const memberSocketId = io.clientsMap[member];
-                const connectedSocet = io.sockets.connected[memberSocketId];
-                if (connectedSocet) {
-                    connectedSocet.join(roomId);
+                const connectedSocket = io.sockets.connected[memberSocketId];
+                if (connectedSocket) {
+                    connectedSocket.join(roomId);
                 }
             });
 
@@ -90,7 +90,7 @@ const listeners = {
         const { id } = data;
         if ((+id !== parseInt(id, 10))) {
             logger.debug("-----SOCKET----- on ROOM_DELETE [Invalid input] %O", data);
-            return socket.emit("ROOM_DELTE_FAIL", {
+            return socket.emit("ROOM_DELETE_FAIL", {
                 payload: {
                     error: "Invalid input."
                 }
@@ -101,7 +101,7 @@ const listeners = {
             const room = await RoomController.getById(id);
             if (room.owner !== loggedUserId) {
                 logger.debug("-----SOCKET----- on ROOM_DELETE [Invalid input] %O", data);
-                return socket.emit("ROOM_DELTE_FAIL", {
+                return socket.emit("ROOM_DELETE_FAIL", {
                     payload: {
                         error: "Invalid input."
                     }
@@ -202,10 +202,10 @@ const listeners = {
         try {
             const room = await RoomController.getById(roomId);
             if (room.owner !== loggedUserId) {
-                logger.debug("-----SOCKET----- on ROOM_KICK_USER [Un-auhtorized] %O", data);
+                logger.debug("-----SOCKET----- on ROOM_KICK_USER [Un-authorized] %O", data);
                 return socket.emit("ROOM_KICK_USER_FAIL", {
                     payload: {
-                        error: "Un-auhtorized"
+                        error: "Un-authorized"
                     }
                 });
             }
