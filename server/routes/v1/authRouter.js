@@ -5,6 +5,14 @@ const UserController = require('../../Controllers/UserController');
 const logger = require('../../../logger/pino'); 
 const UserModel = require('../../Models/UserModel');
 
+router.get("/github/callback", async (req, res, next) => {
+	const { query } = req;
+	const { code } = query;
+	console.log("code", code);
+	res.send({
+		"code": code
+	});
+});
 
 router.get("/logout", (req, res) => {
 	logger.debug("/logout : Try to log-Out %O", req.user);
