@@ -1,4 +1,5 @@
 const LocalStrategy = require('passport-local').Strategy;
+const GitHubStrategy = require('passport-github2').Strategy;
 const UserController = require('../Controllers/UserController');
 const bcrypt = require('bcrypt');
 
@@ -22,6 +23,26 @@ module.exports = (passport) => {
                 else {
                     return done(null, false, { message: "Email Address or Password are incorrect." })
                 }
+            }
+            catch (err) {
+                return done(err);
+            }
+        })
+    );
+
+    passport.use(
+        new GitHubStrategy({
+            clientID: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+            callbackURL: "http://localhost:3330/v1/auth/github/callback"
+        }, async (accessToken, refreshToken, profile, done) => {
+            try {
+                const user = await UserController.getByEmailAddress(profile.emails[0].value);
+                if (!user) {
+                    return done(null, false, { message: "Fail to Auth with GitHub." });
+                }
+                user.password = undefined;
+                    return done(null, user);
             }
             catch (err) {
                 return done(err);
