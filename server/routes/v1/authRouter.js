@@ -6,17 +6,24 @@ const logger = require('../../../logger/pino');
 const UserModel = require('../../Models/UserModel');
 
 router.get('/github',
-  passport.authenticate('github', { scope: [ 'user:email' ] }));
+  passport.authenticate('github', { scope: [ "read:user" ], failWithError: true, failureMessage: " /github -> Unable to auth With GitHub" }));
 
 router.get("/github/callback", 
-passport.authenticate('github', { failWithError: "(callback) Unable to auth With GitHub" }),
+passport.authenticate('github', { failWithError: true, failureMessage: "/github/callback -> Unable to auth With GitHub" }),
 	async (req, res, next) => {
 		const { query } = req;
 		const { code } = query;
 		console.log("code", code);
-		res.send({
-			"code": code
-		});
+		res.req.session.user = res.req.user;
+		// res.status(200).send(req.user);
+		res.send(`<script>
+		window.authUser = ${JSON.stringify(req.user)};
+		window.document.authUser = ${JSON.stringify(req.user)};
+		document.authUser = ${JSON.stringify(req.user)};
+		window.parent.authUser = ${JSON.stringify(req.user)};
+		console.log(${JSON.stringify(req.user)});
+		window.parent.postMessage("authCompleted", authUser);
+		</script>`);
 	});
 
 router.get("/logout", (req, res) => {

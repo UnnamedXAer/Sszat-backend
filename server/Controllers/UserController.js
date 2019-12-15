@@ -9,13 +9,19 @@ class UserController {
 			const results = await knex("users").select("*");
 			const users = results.map(row => {
 				const user = new UserModel(
-					row.id, 
-					row.emailAddress, 
-					row.userName, 
+					row.id,
+					row.emailAddress,
+					row.userName,
 					undefined,
-					row.provider, 
-					row.joinDate, 
-					row.lastActiveOn
+					row.provider,
+					row.joinDate,
+					row.lastActiveOn,
+					row.displayName,
+					row.providerId,
+					row.avatarUrl,
+					row.userPageUrl,
+					row.accessToken,
+					row.refreshToken
 				);
 				return user;
 			});
@@ -46,7 +52,13 @@ class UserController {
 				row.password,
 				row.provider,
 				row.joinDate,
-				row.lastActiveOn
+				row.lastActiveOn,
+				row.displayName,
+				row.providerId,
+				row.avatarUrl,
+				row.userPageUrl,
+				row.accessToken,
+				row.refreshToke
 			);
 
 			return user;
@@ -71,7 +83,13 @@ class UserController {
 				undefined,
 				row.provider,
 				row.joinDate,
-				row.lastActiveOn
+				row.lastActiveOn,
+				row.displayName,
+				row.providerId,
+				row.avatarUrl,
+				row.userPageUrl,
+				row.accessToken,
+				row.refreshToke
 			);
 
 			return user;
@@ -89,7 +107,15 @@ class UserController {
 					emailAddress: user.emailAddress,
 					userName: user.userName,
 					password: user.password,
-					provider: user.provider
+					provider: user.provider,
+					joinDate: user.joinDate,
+					lastActiveOn: user.lastActiveOn,
+					displayName: user.displayName,
+					providerId: user.providerId,
+					avatarUrl: user.avatarUrl,
+					userPageUrl: user.userPageUrl,
+					accessToken: user.accessToken,
+					refreshToken: user.refreshToken
 				})
 				.returning("id");
 

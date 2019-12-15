@@ -1,7 +1,9 @@
 const LocalStrategy = require('passport-local').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const UserController = require('../Controllers/UserController');
+const UserModel = require('../Models/UserModel');
 const bcrypt = require('bcrypt');
+const logger = require('../../logger/pino');
 
 module.exports = (passport) => {
     passport.use(
@@ -25,6 +27,7 @@ module.exports = (passport) => {
                 }
             }
             catch (err) {
+                logger.error("[ LocalStrategy ] error: %o", err);
                 return done(err);
             }
         })
@@ -34,17 +37,53 @@ module.exports = (passport) => {
         new GitHubStrategy({
             clientID: process.env.GITHUB_CLIENT_ID,
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
-            callbackURL: "http://localhost:3330/v1/auth/github/callback"
+            callbackURL: "/v1/auth/github/callback"
+            // callbackURL: "http://localhost:3000"
         }, async (accessToken, refreshToken, profile, done) => {
             try {
-                const user = await UserController.getByEmailAddress(profile.emails[0].value);
-                if (!user) {
+                logger.debug("[ GitHubStrategy ] profile: %o", profile);
+
+                let emailAddress;
+
+                if (profile.emails && profile.emails[0]) {
+                    emailAddress = profile.emails[0].value;
+                }
+                else {
                     return done(null, false, { message: "Fail to Auth with GitHub." });
                 }
-                user.password = undefined;
+
+                let user = await UserController.getByEmailAddress(emailAddress);
+                if (!user) {
+                    let avatarUrl;
+                    if (profile.photos && profile.photos[0]) {
+                        avatarUrl = profile.photos[0].value;
+                    }
+    
+                    const newGitHubUser = new UserModel(
+                        undefined,
+                        emailAddress,
+                        profile.username,
+                        undefined,
+                        profile.provider,
+                        new Date().toUTCString(),
+                        new Date().toUTCString(),
+                        profile.displayName,
+                        profile.id,
+                        avatarUrl,
+                        profile.profileUrl,
+                        accessToken,
+                        refreshToken
+                    );
+
+                    const createdUserId = await UserController.create(newGitHubUser);
+                    logger.info("[ GitHubStrategy ] - new user created: %s", createdUserId);
+                    user = await UserController.getById(createdUserId);
+                }
+                    user.password = undefined;
                     return done(null, user);
             }
             catch (err) {
+                logger.error("[ GitHubStrategy ] error: %o", err);
                 return done(err);
             }
         })
@@ -66,6 +105,7 @@ module.exports = (passport) => {
             }
         }
         catch (err) {
+            logger.error("[ deserializeUser ] error: %o", err);
             done(err, false);
         }
     });
