@@ -9,21 +9,26 @@ router.get('/github',
   passport.authenticate('github', { scope: [ "read:user" ], failWithError: true, failureMessage: " /github -> Unable to auth With GitHub" }));
 
 router.get("/github/callback", 
-passport.authenticate('github', { failWithError: true, failureMessage: "/github/callback -> Unable to auth With GitHub" }),
+passport.authenticate('github', 
+	{ failWithError: true, failureMessage: "/github/callback -> Unable to auth With GitHub" }),
 	async (req, res, next) => {
-		const { query } = req;
-		const { code } = query;
-		console.log("code", code);
 		res.req.session.user = res.req.user;
-		// res.status(200).send(req.user);
-		res.send(`<script>
-		window.authUser = ${JSON.stringify(req.user)};
-		window.document.authUser = ${JSON.stringify(req.user)};
-		document.authUser = ${JSON.stringify(req.user)};
-		window.parent.authUser = ${JSON.stringify(req.user)};
-		console.log(${JSON.stringify(req.user)});
-		window.parent.postMessage("authCompleted", authUser);
-		</script>`);
+		res.send(
+			`<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<meta http-equiv="X-UA-Compatible" content="ie=edge">
+				<title>Authorization Completed</title>
+			</head>
+			<body>
+				<script>try{window.close()}catch(err){}</script>
+				<h1>Task Completed</h1>
+				<p>You can <a href="javascript:window.close()">close</a> this window if doesn't closed automatically.</p>
+			</body>
+			</html>`
+		);
 	});
 
 router.get("/logout", (req, res) => {
@@ -31,6 +36,19 @@ router.get("/logout", (req, res) => {
 	delete req.session.user;
 	req.logout();
 	res.sendStatus(200);
+});
+
+router.get("/loggeduser", (req, res, next) => {
+	if (req.user) {
+		const routeUrl = `../users/${req.user.id}`;
+		logger.debug(`/loggeduser, redirect to ${routeUrl}`);
+		res.redirect(routeUrl);
+	}
+	else {
+		logger.info(`/loggeduser, -> no user logged in. pass code 401`);
+		res.status(401);
+		next(new Error("Un-authorized"));
+	}
 });
 
 router.post("/login", async (req, res, next) => {
