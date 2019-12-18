@@ -20,8 +20,8 @@ class UserController {
 					row.providerId,
 					row.avatarUrl,
 					row.userPageUrl,
-					row.accessToken,
-					row.refreshToken
+					undefined,//row.accessToken,
+					undefined,//row.refreshToke
 				);
 				return user;
 			});
@@ -57,8 +57,8 @@ class UserController {
 				row.providerId,
 				row.avatarUrl,
 				row.userPageUrl,
-				row.accessToken,
-				row.refreshToke
+				undefined,//row.accessToken,
+				undefined,//row.refreshToke
 			);
 
 			return user;
@@ -88,8 +88,8 @@ class UserController {
 				row.providerId,
 				row.avatarUrl,
 				row.userPageUrl,
-				row.accessToken,
-				row.refreshToke
+				undefined,//row.accessToken,
+				undefined,//row.refreshToke
 			);
 
 			return user;
