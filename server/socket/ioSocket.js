@@ -15,7 +15,9 @@ const initSocket = (server, session) => {
 
 	io.on("connection", socket => {	
 		logger.debug("-----SOCKET----- New client connected socket.id: %s", socket.id);
-
+		if (!(socket.handshake.session && socket.handshake.session.user && socket.handshake.session.user.id)) {
+			return socket.disconnect();
+		}
 		io.clientsMap[socket.handshake.session.user.id] = socket.id;
 
 		socket.on("disconnect", () => {
