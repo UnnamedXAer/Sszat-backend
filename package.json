@@ -33,10 +33,10 @@
     "passport-github2": "^0.1.11",
     "passport-local": "^1.0.0",
     "pg": "^7.12.1",
-    "pino": "^5.13.5",
+    "pino": "^5.15.0",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {
-    "pino-pretty": "^3.3.0"
+    "pino-pretty": "^3.5.0"
   }
 }
