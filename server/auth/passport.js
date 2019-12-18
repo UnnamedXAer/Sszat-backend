@@ -37,8 +37,8 @@ module.exports = (passport) => {
         new GitHubStrategy({
             clientID: process.env.GITHUB_CLIENT_ID,
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
-			callbackURL: "/v1/auth/github/callback"
-            // callbackURL: "http://localhost:3000"
+			callbackURL: "/v1/auth/github/callback",
+			scope: ["read:user"]
         }, async (accessToken, refreshToken, profile, done) => {
             try {
                 logger.debug("[ GitHubStrategy ] profile: %o", profile);
@@ -79,8 +79,8 @@ module.exports = (passport) => {
                     logger.info("[ GitHubStrategy ] - new user created: %s", createdUserId);
                     user = await UserController.getById(createdUserId);
                 }
-                    user.password = undefined;
-                    return done(null, user);
+				user.password = undefined;
+				return done(null, user);
             }
             catch (err) {
                 logger.error("[ GitHubStrategy ] error: %o", err);

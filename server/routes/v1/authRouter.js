@@ -6,13 +6,18 @@ const logger = require('../../../logger/pino');
 const UserModel = require('../../Models/UserModel');
 
 router.get('/github',
-  passport.authenticate('github', { scope: [ "read:user" ], failWithError: true, failureMessage: " /github -> Unable to auth With GitHub" }));
+	passport.authenticate('github', {
+		scope: [ "read:user" ] 
+	}));
 
 router.get("/github/callback", 
-passport.authenticate('github', 
-	{ failWithError: true, failureMessage: "/github/callback -> Unable to auth With GitHub" }),
+	passport.authenticate('github', {
+		scope: [ "read:user" ]
+	}),
 	async (req, res, next) => {
-		res.req.session.user = res.req.user;
+		res.req.session.user = req.user;
+		const stringifiedUser = JSON.stringify(req.user, "\t");
+		logger.debug(`[@GET] /github/callback - user: %s`, stringifiedUser);
 		res.send(
 			`<!DOCTYPE html>
 			<html lang="en">
@@ -23,7 +28,24 @@ passport.authenticate('github',
 				<title>Authorization Completed</title>
 			</head>
 			<body>
-				<script>try{window.close()}catch(err){}</script>
+				<script>
+					window.authUser = ${stringifiedUser};
+					try {
+						const { ipcRenderer } = window.require("electron");
+						const payload = {
+							userId: ${res.req.user.id}
+						}
+						// ipcRenderer.sendSync("signIn3rdPart-completed", payload);
+						console.log("Sent", payload);
+					} catch (err) {
+						console.log(err);
+					}
+					try {
+						window.close();
+					} catch (err) {
+						console.log(err);
+					}
+				</script>
 				<h1>Task Completed</h1>
 				<p>You can <a href="javascript:window.close()">close</a> this window if doesn't closed automatically.</p>
 			</body>
