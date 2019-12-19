@@ -4,14 +4,17 @@ const logger = require('../../logger/pino');
 const messageListeners = require("./listeners/messageListeners");
 const roomListeners = require("./listeners/roomListeners");
 const joinRooms = require('./joinRooms');
+const ensureClientIsAuthenticated = require('./middleware/ensureClientIsAuthenticated');
+const emitUserIsActive = require('./middleware/emitUserIsActive');
 
 let io;
-
 
 const initSocket = (server, session) => {
 	io = socketIo(server);
 	io.clientsMap = {};
 	io.use(sharedSession(session));
+	io.use(ensureClientIsAuthenticated);
+	io.use(emitUserIsActive);
 
 	io.on("connection", socket => {	
 		logger.debug("-----SOCKET----- New client connected socket.id: %s", socket.id);

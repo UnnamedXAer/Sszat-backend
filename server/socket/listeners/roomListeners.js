@@ -3,7 +3,7 @@ const RoomController = require('../../Controllers/RoomController');
 const RoomModel = require('../../Models/RoomModel');
 
 const listeners = {
-    "ROOM_NEW": async (data, socket, io, clients) => {
+    "ROOM_NEW": async (data, socket, io) => {
         const loggedUserId = socket.handshake.session.user.id;
         logger.info(`-----SOCKET----- on ROOM_NEW, %O \n session.user: %s (%s)`, 
             data,
@@ -81,7 +81,7 @@ const listeners = {
             return socket.emit("ROOM_NEW_FAIL", {
                 payload: { error: err.message }
             });
-        }
+		}
     },
 
     "ROOM_DELETE": async (data, socket, io) => {

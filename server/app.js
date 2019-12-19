@@ -38,7 +38,7 @@ app.use(express.urlencoded({
 const store = new KnexSessionStore({
 	knex: require('../config/database'),
 	tablename: "sessions" // optional. Defaults to 'sessions'
-  });
+});
 
 const expressSession = session({
 	secret: "tmpSecret",
