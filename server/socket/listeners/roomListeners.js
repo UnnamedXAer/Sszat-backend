@@ -65,7 +65,7 @@ const listeners = {
             socket.join(roomId);
 
             members.forEach(member => {
-                const memberSocketId = io.clientsMap[member];
+                const memberSocketId = io.clientsMap[member].socketId;
                 const connectedSocket = io.sockets.connected[memberSocketId];
                 if (connectedSocket) {
                     connectedSocket.join(roomId);
@@ -230,7 +230,7 @@ const listeners = {
                 }
             };
 
-            const kickedUserSocketId = io.clientsMap[userId];
+            const kickedUserSocketId = io.clientsMap[userId].socketId;
             if (kickedUserSocketId) {
                 // otherwise means that user is not online
                 io.sockets.sockets[kickedUserSocketId].leave(roomId);

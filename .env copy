@@ -1,3 +1,10 @@
 DB_PASSWORD=pcdbpassword
 
+
+PINO_LEVEL=debug
+PINO_LEVEL_VAL=debug
+
 DEBUG=socket.io*
+
+GITHUB_CLIENT_ID=key___________
+GITHUB_CLIENT_SECRET=key___________

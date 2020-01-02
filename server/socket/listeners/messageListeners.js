@@ -21,7 +21,6 @@ const listeners = {
 				}
 			};
 
-			console.log("---SOCKET---members of: "+data.roomId, socket.rooms);
 			socket.to(data.roomId).emit("MESSAGE_NEW", payload);
 			socket.emit("MESSAGE_NEW_FINISH", payload);
 		}
