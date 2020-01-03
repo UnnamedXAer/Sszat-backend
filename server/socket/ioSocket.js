@@ -32,6 +32,12 @@ const initSocket = (server, session) => {
 
 		// TODO - listen for USER_ACTIVE 
 
+		socket.on("USER_ACTIVE", (data) => {
+			logger.debug("-----SOCKET----- USER_ACTIVE socket.id: %s", socket.id);
+
+			const userId = socket.handshake.session.user.id;
+			io.emit("USER_ACTIVE", { userId });
+		});
 
 		socket.on("disconnect", () => {
 			logger.debug("-----SOCKET----- Client disconnected socket.id: %s", socket.id);
