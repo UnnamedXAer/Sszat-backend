@@ -16,7 +16,9 @@ class MessageController {
 					row.parts,
 					row.filesCount,
 					row.createBy,
-					row.createDate
+					row.createDate,
+					null,
+					row.predefinedMsgKey
 				);
 
 				return message;
@@ -56,7 +58,8 @@ class MessageController {
 					parts: message.parts,
 					createBy: message.createBy,
 					createDate: message.createDate,
-					filesCount: message.filesCount
+					filesCount: message.filesCount,
+					predefinedMsgKey: message.predefinedMsgKey
 				})
 				.returning("id");
 
